@@ -7,6 +7,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class MovieService {
@@ -15,5 +17,9 @@ public class MovieService {
 
     public Page<Movie> getAllMovies() {
         return movieRepository.findAll(Pageable.unpaged());
+    }
+
+    public Optional<Movie> getMovie(long id) {
+        return movieRepository.findById(id);
     }
 }

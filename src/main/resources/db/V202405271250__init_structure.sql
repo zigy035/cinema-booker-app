@@ -9,8 +9,8 @@ CREATE TABLE movie (
 CREATE TABLE theatre (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
-    row_number INTEGER NOT NULL,
-    column_number INTEGER NOT NULL
+    row_count INTEGER NOT NULL,
+    col_count INTEGER NOT NULL
 );
 
 CREATE TABLE auth_user (

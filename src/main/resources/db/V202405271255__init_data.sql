@@ -6,4 +6,9 @@ INSERT INTO movie(id, title, description, genre, duration) VALUES
 (nextval('movie_id_seq'),
  'Heart of Stone',
  'Rachel Stone is a charter agent cum technician who works along with a team of MI 6 field agents. The mission is to locate the "heart" an AI enabled computer which has the capability of hacking into any software and could cause considerable havoc should it fall into the wrong hands. ',
- 'ActionCrimeThriller', 122)
+ 'ActionCrimeThriller', 122);
+
+INSERT INTO theatre(id, name, row_count, col_count) VALUES
+(nextval('theatre_id_seq'), 'Main central theatre', 12, 10),
+(nextval('theatre_id_seq'), 'West side theatre', 8, 10),
+(nextval('theatre_id_seq'), 'East side theatre', 6, 10);
