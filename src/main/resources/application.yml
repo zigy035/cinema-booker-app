@@ -1,0 +1,43 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/cinema_booker_db
+    username: admin
+    password: 1234
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      schema: public
+      pool-name: HikariCP
+      maximum-pool-size: 10
+      connection-test-query: SELECT 1
+      connectionTimeout: 30000
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate.ddl-auto: validate
+    show-sql: true
+
+  # Spring Security is temporary disabled
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
+
+  jackson:
+    parser:
+      strict-duplicate-detection: true
+
+  flyway:
+    driver-class-name: ${spring.datasource.driver-class-name}
+    user: ${spring.datasource.username}
+    password: ${spring.datasource.password}
+    url: ${spring.datasource.url}
+    schemas: ${spring.datasource.hikari.schema}
+    locations: classpath:db
+    table: flyway_db_history
+
+#app.should-init-postcode-data=true
+
+logging:
+  level:
+    org:
+      springframework:
+        security:
+          DEBUG
