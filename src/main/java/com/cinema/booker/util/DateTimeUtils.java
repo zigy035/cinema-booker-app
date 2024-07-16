@@ -6,6 +6,8 @@ import java.util.Optional;
 
 public class DateTimeUtils {
 
+    public static final String ISO_DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+
     public static LocalDateTime createFromToday(int daysOffset, int hours, int minutes) {
         return LocalDateTime.now()
                 .plus(daysOffset, ChronoUnit.DAYS)

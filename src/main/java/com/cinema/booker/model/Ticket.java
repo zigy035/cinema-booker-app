@@ -13,15 +13,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "movie")
-public class Movie {
+@Table(name = "ticket")
+public class Ticket {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    private String title;
-    private String description;
-    private String genre;
-    private int duration;
+    private long showtimeId;
+    private long authUserId;
+    private String seatRow;
+    private String seatColumn;
 }
