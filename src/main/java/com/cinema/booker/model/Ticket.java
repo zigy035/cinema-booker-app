@@ -4,13 +4,13 @@ import lombok.Data;
 import org.springframework.data.annotation.Id;
 
 @Data
-public class Movie {
+public class Ticket {
 
     @Id
     private long id;
 
-    private String title;
-    private String description;
-    private String genre;
-    private int duration;
+    private long showtimeId;
+    private long authUserId;
+    private long seatRows;
+    private long seatColumns;
 }

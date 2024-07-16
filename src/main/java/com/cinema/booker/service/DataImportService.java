@@ -1,10 +1,10 @@
 package com.cinema.booker.service;
 
-import com.cinema.booker.model.Broadcast;
 import com.cinema.booker.model.Movie;
+import com.cinema.booker.model.Showtime;
 import com.cinema.booker.model.Theatre;
-import com.cinema.booker.repository.BroadcastRepository;
 import com.cinema.booker.repository.MovieRepository;
+import com.cinema.booker.repository.ShowtimeRepository;
 import com.cinema.booker.repository.TheatreRepository;
 import com.cinema.booker.util.DateTimeUtils;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ public class DataImportService {
 
     private final TheatreRepository theatreRepository;
 
-    private final BroadcastRepository broadcastRepository;
+    private final ShowtimeRepository showtimeRepository;
 
     @Transactional
     public void importTimeSlotData() {
@@ -32,25 +32,24 @@ public class DataImportService {
         Page<Theatre> theatres = theatreRepository.findAll(Pageable.unpaged());
         for (Movie movie : movies) {
             for (Theatre theatre : theatres) {
-                Broadcast bc1 = Broadcast.builder()
-                        .movie(movie)
-                        .theatre(theatre)
-                        .broadcastTime(DateTimeUtils.createFromToday(0, 12, 15))
+                Showtime st1 = Showtime.builder()
+                        .movieId(movie.getId())
+                        .theatreId(theatre.getId())
+                        .showTime(DateTimeUtils.createFromToday(0, 12, 15))
                         .build();
-                Broadcast bc2 = Broadcast.builder()
-                        .movie(movie)
-                        .theatre(theatre)
-                        .broadcastTime(DateTimeUtils.createFromToday(0, 14, 30))
+                Showtime st2 = Showtime.builder()
+                        .movieId(movie.getId())
+                        .theatreId(theatre.getId())
+                        .showTime(DateTimeUtils.createFromToday(0, 14, 30))
                         .build();
-                Broadcast bc3 = Broadcast.builder()
-                        .movie(movie)
-                        .theatre(theatre)
-                        .broadcastTime(DateTimeUtils.createFromToday(0, 16, 45))
+                Showtime st3 = Showtime.builder()
+                        .movieId(movie.getId())
+                        .theatreId(theatre.getId())
+                        .showTime(DateTimeUtils.createFromToday(0, 16, 45))
                         .build();
 
-                broadcastRepository.saveAll(List.of(bc1, bc2, bc3));
+                showtimeRepository.saveAll(List.of(st1, st2, st3));
             }
-            LocalDateTime ldt = LocalDateTime.now().withHour(0);
         }
     }
 }

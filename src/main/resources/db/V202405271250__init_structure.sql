@@ -9,8 +9,8 @@ CREATE TABLE movie (
 CREATE TABLE theatre (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
-    row_count INTEGER NOT NULL,
-    col_count INTEGER NOT NULL
+    seat_rows INTEGER NOT NULL,
+    seat_columns INTEGER NOT NULL
 );
 
 CREATE TABLE auth_user (
@@ -20,44 +20,44 @@ CREATE TABLE auth_user (
     email VARCHAR(50) NOT NULL UNIQUE,
     username VARCHAR(50) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
-    access INT8 NOT NULL
+    access_role VARCHAR(10) NOT NULL
 );
 
-CREATE TABLE broadcast (
+CREATE TABLE showtime (
     id BIGSERIAL PRIMARY KEY,
     movie_id BIGINT NOT NULL,
     theatre_id BIGINT NOT NULL,
-    broadcast_time TIMESTAMP NOT NULL
+    show_time TIMESTAMP NOT NULL
 );
 
-ALTER TABLE broadcast
-ADD CONSTRAINT broadcast_movie_id_fk
+ALTER TABLE showtime
+ADD CONSTRAINT showtime_movie_id_fk
 FOREIGN KEY(movie_id) REFERENCES movie(id);
 
-ALTER TABLE broadcast
-ADD CONSTRAINT broadcast_theatre_id_fk
+ALTER TABLE showtime
+ADD CONSTRAINT showtime_theatre_id_fk
 FOREIGN KEY(theatre_id) REFERENCES theatre(id);
 
-ALTER TABLE broadcast
-ADD CONSTRAINT broadcast_movie_theatre_time_uq
-UNIQUE (movie_id, theatre_id, broadcast_time);
+ALTER TABLE showtime
+ADD CONSTRAINT showtime_movie_theatre_time_uq
+UNIQUE (movie_id, theatre_id, show_time);
 
 CREATE TABLE ticket (
     id BIGSERIAL PRIMARY KEY,
-    broadcast_id BIGINT NOT NULL,
+    showtime_id BIGINT NOT NULL,
     auth_user_id BIGINT NOT NULL,
-    seat_row VARCHAR(3) NOT NULL,
-    seat_column VARCHAR(3) NOT NULL
+    seat_row VARCHAR(1) NOT NULL,
+    seat_column VARCHAR(2) NOT NULL
 );
 
 ALTER TABLE ticket
-ADD CONSTRAINT ticket_broadcast_id_fk
-FOREIGN KEY(broadcast_id) REFERENCES broadcast(id);
+ADD CONSTRAINT ticket_showtime_id_fk
+FOREIGN KEY(showtime_id) REFERENCES showtime(id);
 
 ALTER TABLE ticket
 ADD CONSTRAINT ticket_auth_user_id_fk
 FOREIGN KEY(auth_user_id) REFERENCES auth_user(id);
 
 ALTER TABLE ticket
-ADD CONSTRAINT ticket_broadcast_id_row_col_uq
-UNIQUE (broadcast_id, seat_row, seat_column);
+ADD CONSTRAINT ticket_showtime_id_row_col_uq
+UNIQUE (showtime_id, seat_row, seat_column);

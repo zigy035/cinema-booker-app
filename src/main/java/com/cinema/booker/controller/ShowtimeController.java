@@ -1,7 +1,7 @@
 package com.cinema.booker.controller;
 
-import com.cinema.booker.model.Broadcast;
-import com.cinema.booker.service.BroadcastService;
+import com.cinema.booker.model.Showtime;
+import com.cinema.booker.service.ShowtimeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
@@ -12,21 +12,21 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 
 @RestController
-@RequestMapping("/api/broadcasts")
+@RequestMapping("/api/showtimes")
 @RequiredArgsConstructor
-public class BroadcastController {
+public class ShowtimeController {
 
-    private final BroadcastService broadcastService;
+    private final ShowtimeService showtimeService;
 
     @GetMapping("/movie")
-    public List<Broadcast> getBroadcastsByMovieAndDate(
+    public List<Showtime> getShowtimesByMovieAndDate(
             @RequestParam("movieId") long movieId,
             @RequestParam("localDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate localDate) {
-        return broadcastService.getBroadcastsByMovieAndDate(movieId, localDate);
+        return showtimeService.getShowtimesByMovieAndDate(movieId, localDate);
     }
 
     @GetMapping("/movie/{movieId}")
-    public TreeMap<String, SortedSet<String>> getBroadcastTimeSlots(@PathVariable("movieId") long movieId) {
-        return broadcastService.getBroadcastTimeSlots(movieId);
+    public TreeMap<String, SortedSet<String>> getShowtimeTimeSlots(@PathVariable("movieId") long movieId) {
+        return showtimeService.getShowtimeSlots(movieId);
     }
 }
