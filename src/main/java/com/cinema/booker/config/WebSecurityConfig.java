@@ -2,6 +2,7 @@ package com.cinema.booker.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -22,11 +23,13 @@ public class WebSecurityConfig implements WebMvcConfigurer {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests(authorize ->
-                        authorize.requestMatchers("/api/**").permitAll() // Allow access to /api endpoints
-                                .anyRequest().authenticated() // Secure other endpoints
-                )
-                .csrf(AbstractHttpConfigurer::disable); // Disable CSRF protection (optional)
+        http.cors(Customizer.withDefaults())
+            .authorizeHttpRequests(authorize ->
+                authorize.requestMatchers("/api/**").permitAll()
+                    .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
+                    .anyRequest().authenticated()
+            )
+            .csrf(AbstractHttpConfigurer::disable);
 
         return http.build();
     }

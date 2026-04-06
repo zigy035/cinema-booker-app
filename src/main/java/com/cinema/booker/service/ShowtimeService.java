@@ -1,20 +1,28 @@
 package com.cinema.booker.service;
 
 import com.cinema.booker.dto.CreateShowtimeDto;
+import com.cinema.booker.dto.CreateShowtimeListDto;
+import com.cinema.booker.exception.RecordNotFoundException;
 import com.cinema.booker.exception.ShowtimeOverlapException;
 import com.cinema.booker.model.Movie;
 import com.cinema.booker.model.Showtime;
 import com.cinema.booker.repository.MovieRepository;
 import com.cinema.booker.repository.ShowtimeRepository;
+import com.cinema.booker.repository.TheatreRepository;
 import com.cinema.booker.util.DateTimeUtils;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +30,7 @@ public class ShowtimeService {
 
     private final ShowtimeRepository showtimeRepository;
     private final MovieRepository movieRepository;
+    private final TheatreRepository theatreRepository;
 
     public List<Showtime> getShowtimesByMovieAndDate(long movieId, LocalDate localDate) {
         return showtimeRepository.getShowtimesByMovieAndDate(movieId, localDate);
@@ -40,21 +49,23 @@ public class ShowtimeService {
     }
 
     @Transactional
-    public List<Showtime> createShowtimes(List<CreateShowtimeDto> dtos) {
-        List<Showtime> toSave = new ArrayList<>();
+    public List<Showtime> createShowtimes(CreateShowtimeListDto dtos) {
+        List<Showtime> toSaveShowtimes = new ArrayList<>();
 
-        for (CreateShowtimeDto dto : dtos) {
+        for (CreateShowtimeDto dto : dtos.getShowtimes()) {
             Movie movie = movieRepository.findById(dto.getMovieId())
-                    .orElseThrow(() -> new NoSuchElementException("Movie not found: " + dto.getMovieId()));
+                    .orElseThrow(() -> new RecordNotFoundException(dto.getMovieId(), "Movie"));
+            theatreRepository.findById(dto.getTheatreId())
+                    .orElseThrow(() -> new RecordNotFoundException(dto.getTheatreId(), "Theatre"));
 
-            LocalDateTime newStart = dto.getShowTime();
+            LocalDateTime newStart = dto.getShowTime().withSecond(0).withNano(0);
             LocalDateTime newEnd = newStart.plusMinutes(movie.getDuration());
 
             // Check against existing showtimes in the same theatre
-            for (Showtime existing : showtimeRepository.findByTheatreId(dto.getTheatreId())) {
-                Movie existingMovie = movieRepository.findById(existing.getMovieId())
-                        .orElseThrow(() -> new NoSuchElementException("Movie not found: " + existing.getMovieId()));
-                LocalDateTime existingStart = existing.getShowTime();
+            for (Showtime existingShowtime : showtimeRepository.findByTheatreId(dto.getTheatreId())) {
+                Movie existingMovie = movieRepository.findById(existingShowtime.getMovieId())
+                        .orElseThrow(() -> new RecordNotFoundException(existingShowtime.getMovieId(), "Movie"));
+                LocalDateTime existingStart = existingShowtime.getShowTime();
                 LocalDateTime existingEnd = existingStart.plusMinutes(existingMovie.getDuration());
 
                 if (newStart.isBefore(existingEnd) && existingStart.isBefore(newEnd)) {
@@ -63,11 +74,11 @@ public class ShowtimeService {
             }
 
             // Check against other showtimes in the same batch (same theatre)
-            for (Showtime pending : toSave) {
-                if (pending.getTheatreId() == dto.getTheatreId()) {
-                    Movie pendingMovie = movieRepository.findById(pending.getMovieId())
-                            .orElseThrow(() -> new NoSuchElementException("Movie not found: " + pending.getMovieId()));
-                    LocalDateTime pendingStart = pending.getShowTime();
+            for (Showtime pendingShowtime : toSaveShowtimes) {
+                if (pendingShowtime.getTheatreId() == dto.getTheatreId()) {
+                    Movie pendingMovie = movieRepository.findById(pendingShowtime.getMovieId())
+                            .orElseThrow(() -> new RecordNotFoundException(pendingShowtime.getMovieId(), "Movie"));
+                    LocalDateTime pendingStart = pendingShowtime.getShowTime();
                     LocalDateTime pendingEnd = pendingStart.plusMinutes(pendingMovie.getDuration());
 
                     if (newStart.isBefore(pendingEnd) && pendingStart.isBefore(newEnd)) {
@@ -76,13 +87,13 @@ public class ShowtimeService {
                 }
             }
 
-            toSave.add(Showtime.builder()
+            toSaveShowtimes.add(Showtime.builder()
                     .movieId(dto.getMovieId())
                     .theatreId(dto.getTheatreId())
                     .showTime(newStart)
                     .build());
         }
 
-        return showtimeRepository.saveAll(toSave);
+        return showtimeRepository.saveAll(toSaveShowtimes);
     }
 }

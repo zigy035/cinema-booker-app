@@ -1,6 +1,7 @@
 package com.cinema.booker.config;
 
 import com.cinema.booker.exception.EmailAlreadyExistsException;
+import com.cinema.booker.exception.RecordNotFoundException;
 import com.cinema.booker.exception.ShowtimeOverlapException;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,6 +29,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 errors.put(error.getField(), error.getDefaultMessage()));
 
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(RecordNotFoundException.class)
+    public ResponseEntity<Object> handleRecordNotFound(RecordNotFoundException ex) {
+        Map<String, String> errors = new HashMap<>();
+
+        errors.put("message", ex.getMessage());
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errors);
     }
 
     @ExceptionHandler(EmailAlreadyExistsException.class)
